@@ -18,18 +18,24 @@ type InvertedIndex map[string][]int // key 存储分词，就是一个term，val
 
 func TestSe(t *testing.T) {
 	InitConfig()
-	text := "催眠大师"
+	text := "催眠大师,./?"
+	fmt.Println(text)
 	text = removeShopWord(text)
-	res := gobalGse.CutSearch(text)
-	fmt.Println("分词后的结果是:", res)
+	fmt.Println(text)
+	fmt.Println("分词后的结果是1:", gobalGse.CutSearch(text))
+	fmt.Println("分词后的结果是2:", gobalGse.CutAll(text))
+	fmt.Println("分词后的结果是3:", gobalGse.CutDAG(text))
 }
 
 func TestSe2(t *testing.T) {
 	query := "催眠大师"
 	InitConfig()
 	docx := fileOpen()
+	fmt.Println(docx)
 	iIndex := BuildIndex(docx)
 	res, qy := search(iIndex, query, docx)
+	fmt.Println(res)
+	fmt.Println(qy)
 	resT := sortRes(qy, res)
 	fmt.Printf("一共搜索到 %d 条,query 分词结果: %v \n", len(res), qy)
 	for i := range resT {
@@ -57,7 +63,6 @@ func fileOpen() []string {
 		docxs = append(docxs, tmp[1])
 	}
 	docxs = docxs[1:]
-
 	return docxs
 }
 
@@ -80,8 +85,8 @@ func tokenize(text string) []string {
 // 建立索引
 func BuildIndex(docx []string) InvertedIndex {
 	index := make(InvertedIndex)
-	for i, d := range docx { // 遍历所有的docx, ["王小波，搜索引擎","王小波2，搜索引擎2","王小波3，搜索引擎3"]
-		for _, word := range tokenize(d) { // 对所有的docx进行token , [小波 王小波 搜索 引擎 搜索引擎]-->doc 1
+	for i, d := range docx { // 遍历所有的docx
+		for _, word := range tokenize(d) {
 			if _, ok := index[word]; !ok { // 如果index不存在这个term了
 				index[word] = []int{i} // 初始化并放入 行数 index[小波]=[1]
 			} else {
@@ -94,7 +99,7 @@ func BuildIndex(docx []string) InvertedIndex {
 	return index
 }
 
-// 搜索，传入参数:index-->倒排库, query：用户输出的搜索内容 docs 正排索引 【王小波，腾讯】
+// 搜索，传入参数:index-->倒排库, query：用户输出的搜索内容 docs 正排索引
 func search(index InvertedIndex, query string, docs []string) ([]string, []string) {
 	result := make(map[int]bool)
 	qy := tokenize(query)     // query词条进行分词
