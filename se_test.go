@@ -11,11 +11,11 @@ import (
 	"testing"
 )
 
-var gobalGse gse.Segmenter
+var globalGse gse.Segmenter
 
 var StopWord = []string{",", ".", "，", "、", "。", "*", "(", ")", "'", "\""}
 
-type InvertedIndex map[string][]int // key 存储分词，就是一个term，value 存储doc id [1,2,3]
+type InvertedIndex map[string][]int
 
 func TestSe(t *testing.T) {
 	InitConfig()
@@ -23,13 +23,15 @@ func TestSe(t *testing.T) {
 	fmt.Println(text)
 	text = removeShopWord(text)
 	fmt.Println(text)
-	fmt.Println("分词后的结果是1:", gobalGse.CutSearch(text))
-	fmt.Println("分词后的结果是2:", gobalGse.CutAll(text))
-	fmt.Println("分词后的结果是3:", gobalGse.CutDAG(text))
+	fmt.Println("分词后的结果是1:", globalGse.CutSearch(text))
+	fmt.Println("分词后的结果是2:", globalGse.CutAll(text))
+	fmt.Println("分词后的结果是3:", globalGse.CutDAG(text))
 }
 
 func TestSe2(t *testing.T) {
-	query := "催眠大师"
+	query := "心理学"
+	cutSearch := globalGse.CutSearch(query)
+	fmt.Println(cutSearch)
 	InitConfig()
 	// 1. 数据准备
 	docx := fileOpen()
@@ -48,7 +50,7 @@ func TestSe2(t *testing.T) {
 }
 
 func InitConfig() {
-	gobalGse, _ = gse.New()
+	globalGse, _ = gse.New()
 }
 
 // 读取文件，返回docx 字符串数组
@@ -57,7 +59,12 @@ func fileOpen() []string {
 	if err != nil {
 		fmt.Println(err)
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+
+		}
+	}(file)
 	// 创建一个scanner 用来读取文件内容
 	scanner := bufio.NewScanner(file)
 	docxs := make([]string, 0)
@@ -84,7 +91,7 @@ func tokenize(text string) []string {
 	// 去除语气词
 	text = removeShopWord(text)
 	//调用gse库进行分词
-	return gobalGse.CutSearch(text)
+	return globalGse.CutSearch(text)
 }
 
 // 建立索引
@@ -117,10 +124,10 @@ func search(index InvertedIndex, query string, docs []string) ([]string, []strin
 		}
 	}
 
-	output := []string{}
+	var output []string
 	for d := range result { // 存储 doc id
-		output = append(output, docs[d])
 		// 利用正排索引，找到id对应的存储内容并返回
+		output = append(output, docs[d])
 	}
 	return output, qy
 }
