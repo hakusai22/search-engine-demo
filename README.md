@@ -1,4 +1,7 @@
 # search-engine-demo
+
+原始搜索数据可以使用悟空数据源 https://wukong-dataset.github.io/wukong-dataset/download.html
+
 实现步骤
 
 1. 数据准备
