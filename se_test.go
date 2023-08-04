@@ -38,10 +38,11 @@ func TestSe2(t *testing.T) {
 	fmt.Println(docx)
 	// 2. 构建倒排索引
 	iIndex := BuildIndex(docx)
-	//
+	// 3. 关键字分词+倒排索引+ 正排索引数据
 	res, qy := search(iIndex, query, docx)
 	fmt.Println(res)
 	fmt.Println(qy)
+	// 4. 对结果使用排名算法TF-IDF进行排序
 	resT := sortRes(qy, res)
 	fmt.Printf("一共搜索到 %d 条,query 分词结果: %v \n", len(res), qy)
 	for i := range resT {
