@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/go-ego/gse"
+	"math"
 	"os"
 	"sort"
 	"strings"
@@ -30,9 +31,12 @@ func TestSe(t *testing.T) {
 func TestSe2(t *testing.T) {
 	query := "催眠大师"
 	InitConfig()
+	// 1. 数据准备
 	docx := fileOpen()
 	fmt.Println(docx)
+	// 2. 构建倒排索引
 	iIndex := BuildIndex(docx)
+	//
 	res, qy := search(iIndex, query, docx)
 	fmt.Println(res)
 	fmt.Println(qy)
@@ -75,27 +79,27 @@ func removeShopWord(word string) string {
 	return word
 }
 
-// token化
+// token化 调用
 func tokenize(text string) []string {
-	text = removeShopWord(text) // 去除语气词
-
-	return gobalGse.CutSearch(text) // 分词
+	// 去除语气词
+	text = removeShopWord(text)
+	//调用gse库进行分词
+	return gobalGse.CutSearch(text)
 }
 
 // 建立索引
 func BuildIndex(docx []string) InvertedIndex {
 	index := make(InvertedIndex)
-	for i, d := range docx { // 遍历所有的docx
+	for i, d := range docx {
 		for _, word := range tokenize(d) {
-			if _, ok := index[word]; !ok { // 如果index不存在这个term了
-				index[word] = []int{i} // 初始化并放入 行数 index[小波]=[1]
+			if _, ok := index[word]; !ok {
+				index[word] = []int{i}
 			} else {
-				index[word] = append(index[word], i) // index[小波]=[1,2]
+				index[word] = append(index[word], i)
 				// 如果index不存在，则放入该term所在的 行数，也就是 行数
 			}
 		}
 	}
-
 	return index
 }
 
@@ -121,12 +125,21 @@ func search(index InvertedIndex, query string, docs []string) ([]string, []strin
 	return output, qy
 }
 
+// 实现TF-IDF
+func calculateTFIDF(term string, document string, documents []string) float64 {
+	tf := calculateTF(term, document)
+	idf := calculateIDF(term, documents)
+	return tf * idf * 100.0
+}
+
+// 计算TF
 func calculateTF(term string, document string) float64 {
 	termCount := strings.Count(document, term) // term 在 document中出现多少次
 	totalWords := len(tokenize(document))      // 这个document有多少个词
 	return float64(termCount) / float64(totalWords)
 }
 
+// 计算IDF
 func calculateIDF(term string, documents []string) float64 {
 	docWithTerm := 0
 	for _, doc := range documents {
@@ -134,13 +147,7 @@ func calculateIDF(term string, documents []string) float64 {
 			docWithTerm++ // 包含term这个词的文档数
 		}
 	}
-	return float64(len(documents)) / float64(docWithTerm)
-}
-
-func calculateTFIDF(term string, document string, documents []string) float64 {
-	tf := calculateTF(term, document)
-	idf := calculateIDF(term, documents)
-	return tf * idf * 100.0
+	return math.Log(float64(len(documents)) / float64(docWithTerm))
 }
 
 type SortRes struct {
