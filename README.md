@@ -12,7 +12,7 @@
 
 https://github.com/go-ego/gse 分词使用的库
 
-//todo
+// todo
 - 倒排表压缩算法实现
 - 文本相关性排名算法 BM25 实现
 - 搜索结果过滤
