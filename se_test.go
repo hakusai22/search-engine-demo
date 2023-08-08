@@ -19,7 +19,7 @@ type InvertedIndex map[string][]int
 
 func TestSe(t *testing.T) {
 	InitConfig()
-	text := "棒糖股份有限公司,./?"
+	text := "歌曲电影,./?"
 	fmt.Println(text)
 	text = removeShopWord(text)
 	fmt.Println(text)
@@ -29,13 +29,12 @@ func TestSe(t *testing.T) {
 }
 
 func TestSe2(t *testing.T) {
-	query := "心理"
+	InitConfig()
+	query := "歌曲电影"
 	cutSearch := globalGse.CutSearch(query)
 	fmt.Println(cutSearch)
-	InitConfig()
 	// 1. 数据准备
 	docx := fileOpen()
-	fmt.Println(docx)
 	// 2. 构建倒排索引
 	iIndex := BuildIndex(docx)
 	// 3. 关键字分词+倒排索引+ 正排索引数据
@@ -92,7 +91,7 @@ func tokenize(text string) []string {
 	// 去除语气词
 	text = removeShopWord(text)
 	//调用gse库进行分词
-	return globalGse.CutSearch(text)
+	return globalGse.CutDAG(text)
 }
 
 // 建立索引
@@ -113,10 +112,11 @@ func BuildIndex(docx []string) InvertedIndex {
 
 // 搜索，传入参数:index-->倒排库, query：用户输出的搜索内容 docs 正排索引
 func search(index InvertedIndex, query string, docs []string) ([]string, []string) {
+	//set集合
 	result := make(map[int]bool)
 	qy := tokenize(query)     // query词条进行分词
 	for _, word := range qy { // 遍历分完词的每一个term
-		if doc, ok := index[word]; ok { // index [小波]:[1,2,3] doc id
+		if doc, ok := index[word]; ok {
 			// 搜索倒排索引中，term对应的doc数组，doc数组就是存在该term词条的所有的doc id
 			for _, d := range doc {
 				// 对doc数组进行遍历，获取所有的doc id，并且进行标志。
