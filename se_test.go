@@ -17,17 +17,6 @@ var StopWord = []string{",", ".", "，", "、", "。", "*", "(", ")", "'", "\"",
 
 type InvertedIndex map[string][]int
 
-func TestSe(t *testing.T) {
-	InitConfig()
-	text := "歌曲电影,./?"
-	fmt.Println(text)
-	text = removeShopWord(text)
-	fmt.Println(text)
-	fmt.Println("CutSearch分词后的结果是1:", globalGse.CutSearch(text))
-	fmt.Println("CutAll分词后的结果是2:", globalGse.CutAll(text))
-	fmt.Println("CutDAG分词后的结果是3:", globalGse.CutDAG(text))
-}
-
 func TestSe2(t *testing.T) {
 	InitConfig()
 	query := "歌曲电影"
