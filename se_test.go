@@ -37,7 +37,7 @@ func TestSe2(t *testing.T) {
 	docx := fileOpen()
 	// 2. 构建倒排索引
 	iIndex := BuildIndex(docx)
-	// 3. 关键字分词+倒排索引+ 正排索引数据
+	// 3. 关键字分词进行搜索
 	res, qy := search(iIndex, query, docx)
 	fmt.Println(res)
 	fmt.Println(qy)
