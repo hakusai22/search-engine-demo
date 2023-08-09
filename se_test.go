@@ -72,16 +72,7 @@ func removeShopWord(word string) string {
 	for i := range StopWord {
 		word = strings.Replace(word, StopWord[i], "", -1)
 	}
-
 	return word
-}
-
-// token化 调用
-func tokenize(text string) []string {
-	// 去除语气词
-	text = removeShopWord(text)
-	//调用gse库进行分词
-	return globalGse.CutDAG(text)
 }
 
 // 建立索引
@@ -98,6 +89,14 @@ func BuildIndex(docx []string) InvertedIndex {
 		}
 	}
 	return index
+}
+
+// token化 调用
+func tokenize(text string) []string {
+	// 去除语气词
+	text = removeShopWord(text)
+	//调用gse库进行分词
+	return globalGse.CutDAG(text)
 }
 
 // 搜索，传入参数:index-->倒排库, query：用户输出的搜索内容 docs 正排索引
@@ -154,6 +153,7 @@ type SortRes struct {
 	Id    int
 }
 
+//结果排序
 func sortRes(qy []string, res []string) []*SortRes {
 	exist := make(map[int]*SortRes)
 	for _, v := range qy { // 遍历每一个query的分词后的token词条
@@ -183,6 +183,7 @@ func sortRes(qy []string, res []string) []*SortRes {
 			Id:    v.Id,
 		})
 	}
+	//分数 从大到小排序
 	sort.Slice(resList, func(i, j int) bool { // 按照score进行排序
 		return resList[i].Score > resList[j].Score
 	})
