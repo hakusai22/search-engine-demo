@@ -18,6 +18,7 @@ var StopWord = []string{",", ".", "，", "、", "。", "*", "(", ")", "'", "\"",
 type InvertedIndex map[string][]int
 
 func TestSe2(t *testing.T) {
+	// 0. 使用gse分词器
 	InitConfig()
 	query := "歌曲电影"
 	cutSearch := globalGse.CutSearch(query)
